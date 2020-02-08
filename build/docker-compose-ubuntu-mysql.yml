@@ -1,11 +1,11 @@
-## docker-compose Bareos Director/Storage/Client/webUI and PostgreSQL Database based on Ubuntu
+## docker-compose Bareos Director/Storage/Client/webUI and MySQL Database
 version: '3'
 services:
   bareos-dir:
-    image: barcus/bareos-director:18-pgsql-ubuntu
+    build: ./../director-mysql
     volumes:
       - /data/bareos/config/director:/etc/bareos
-      - /data/bareos/data/director:/var/lib/bareos # required for MyCatalog backup
+      - /data/bareos/data/director:/var/lib/bareos
     environment:
       - DB_HOST=bareos-db
       - DB_PORT=3306
@@ -17,12 +17,12 @@ services:
       - BAREOS_WEBUI_PASSWORD=ThisIsMySecretUIp4ssw0rd
       - SMTP_HOST=smtpd
       #- SENDER_MAIL=your-sender@mail.address #optional
-      - ADMIN_MAIL=your@mail.address # Change me!
+      - ADMIN_MAIL=your@barcus@tou.nu # Change me!
     depends_on:
       - bareos-db
 
   bareos-sd:
-    image: barcus/bareos-storage:18-ubuntu
+    build: ./../storage
     ports:
       - 9103:9103
     volumes:
@@ -32,15 +32,15 @@ services:
       - BAREOS_SD_PASSWORD=ThisIsMySecretSDp4ssw0rd
 
   bareos-fd:
-    image: barcus/bareos-client:18-ubuntu
+    build: ./../client
     volumes:
       - /data/bareos/config/client:/etc/bareos
-      - /data/bareos/data/director:/var/lib/bareos-director # required for MyCatalog backup
+      - /data/bareos/data/director:/var/lib/bareos-director
     environment:
       - BAREOS_FD_PASSWORD=ThisIsMySecretFDp4ssw0rd
 
   bareos-webui:
-    image: barcus/bareos-webui:18-ubuntu
+    build: ./../webui
     ports:
       - 8080:80
     environment:
@@ -49,11 +49,11 @@ services:
       - /data/bareos/config/webui:/etc/bareos-webui
 
   bareos-db:
-    image: postgres:9.3
+    image: mysql:5.6
     volumes:
-      - /data/pgsql/data:/var/lib/postgresql/data
+      - /data/mysql/data:/var/lib/mysql
     environment:
-      - POSTGRES_PASSWORD=ThisIsMySecretDBp4ssw0rd
+      - MYSQL_ROOT_PASSWORD=ThisIsMySecretDBp4ssw0rd
 
   smtpd:
     image: namshi/smtp
