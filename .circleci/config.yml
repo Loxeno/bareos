@@ -7,8 +7,9 @@ jobs:
       - run:
           name: Variables
           command: |
-          VERSION=$(echo ${CIRCLE_BRANCH} |cut -d'-' -f1)
-          BASE=$(echo ${CIRCLE_BRANCH} |cut -d'-' -f2)
+          #VERSION=$(echo ${CIRCLE_BRANCH} |cut -d'-' -f1)
+          #BASE=$(echo ${CIRCLE_BRANCH} |cut -d'-' -f2)
+          VERSION=16.2
       - run: 
           name: Docker login
           command: echo "$DOCKER_PASS" | docker login --username $DOCKER_USER --password-stdin
