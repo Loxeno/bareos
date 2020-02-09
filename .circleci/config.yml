@@ -5,7 +5,8 @@ executors:
     machine: true
 jobs:
   build: &build
-    executor: my-executor
+    #executor: my-executor
+    machine: true
     steps:
       - checkout
       - run:
@@ -35,7 +36,8 @@ jobs:
             - ./images
 
   deploy: &deploy
-    executor: my-executor
+    #executor: my-executor
+    machine: true
     steps:
       - attach_workspace:
           at: /tmp/workspace
