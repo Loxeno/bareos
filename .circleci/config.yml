@@ -32,21 +32,21 @@ jobs:
             docker save -o image-${CIRCLE_BRANCH}-mysql.tar barcus/bareos-director:${CIRCLE_BRANCH}-mysql
             docker save -o image-${CIRCLE_BRANCH}-pgsql.tar barcus/bareos-director:${CIRCLE_BRANCH}-pgsql
       - persist_to_workspace:
-          root: /tmp/images
+          root: .
           paths:
-            - image-${CIRCLE_BRANCH}-mysql.tar
-            - image-${CIRCLE_BRANCH}-pgsql.tar
+            - ./image-${CIRCLE_BRANCH}-mysql.tar
+            - ./image-${CIRCLE_BRANCH}-pgsql.tar
 
   deploy:
     executor: my-executor
     steps:
       - attach_workspace:
-          at: /tmp/images
+          at: /tmp/workspace
       - run:
           name: Load images and add tags
           command: |
-            docker load -i /tmp/images/image-${CIRCLE_BRANCH}-mysql.tar
-            docker load -i /tmp/images/image-${CIRCLE_BRANCH}-pgsql.tar
+            docker load -i /tmp/workspace/image-${CIRCLE_BRANCH}-mysql.tar
+            docker load -i /tmp/workspace/image-${CIRCLE_BRANCH}-pgsql.tar
             docker tag barcus/bareos-director:${CIRCLE_BRANCH}-mysql barcus/bareos-director:${CIRCLE_BRANCH}
       - run: 
           name: Docker login
