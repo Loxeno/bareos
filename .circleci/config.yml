@@ -92,6 +92,28 @@ jobs:
        - BAREOS_COMP: webui
        - BASE_IMG: ubuntu
 
+  # Build Alpine images
+  build-director-alpine:
+     <<: *build
+     environment:
+       - BAREOS_COMP: director
+       - BASE_IMG: alpine
+  build-client-alpine:
+     <<: *build
+     environment:
+       - BAREOS_COMP: client
+       - BASE_IMG: alpine
+  build-storage-alpine:
+     <<: *build
+     environment:
+       - BAREOS_COMP: storage
+       - BASE_IMG: alpine
+  build-webui-alpine:
+     <<: *build
+     environment:
+       - BAREOS_COMP: webui
+       - BASE_IMG: alpine
+
   # Deploy Ubuntu images
   deploy-director-ubuntu-mysql:
      <<: *deploy
@@ -121,6 +143,29 @@ jobs:
        - BAREOS_COMP: webui
        - BASE_IMG: ubuntu
 
+  # Deploy Ubuntu images
+  deploy-director-alpine:
+     <<: *deploy
+     environment:
+       - BAREOS_COMP: director
+       - BAREOS_BACKEND: mysql
+       - BASE_IMG: alpine
+  deploy-client-alpine:
+     <<: *deploy
+     environment:
+       - BAREOS_COMP: client
+       - BASE_IMG: alpine
+  deploy-storage-alpine:
+     <<: *deploy
+     environment:
+       - BAREOS_COMP: storage
+       - BASE_IMG: alpine
+  deploy-webui-alpine:
+     <<: *deploy
+     environment:
+       - BAREOS_COMP: webui
+       - BASE_IMG: alpine
+
 workflows:
   version: 2
   build-n-deploy:
@@ -130,6 +175,10 @@ workflows:
       - build-client-ubuntu
       - build-storage-ubuntu  
       - build-webui-ubuntu
+      - build-director-alpine
+      - build-client-alpine
+      - build-storage-alpine
+      - build-webui-alpine
       - deploy-director-ubuntu-mysql:
           requires:
             - build-director-ubuntu-mysql
@@ -145,3 +194,15 @@ workflows:
       - deploy-webui-ubuntu:
           requires:
             - build-webui-ubuntu
+      - deploy-director-alpine:
+          requires:
+            - build-director-alpine
+      - deploy-client-alpine:
+          requires:
+            - build-client-alpine
+      - deploy-storage-alpine:
+          requires:
+            - build-storage-alpine
+      - deploy-webui-alpine:
+          requires:
+            - build-webui-alpine
