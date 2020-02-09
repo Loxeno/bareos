@@ -4,13 +4,12 @@ executors:
   my-executor:
     machine: true
 jobs:
-  # Build images
   build: &build
-    executor: my-executor
+    #executor: my-executor
     steps:
       - checkout
       - run:
-          name: Docker build Bareos
+          name: Build image
           command: |
             export TAG="${CIRCLE_BRANCH}-${BASE_IMG}"
             export BAREOS_PATH="${BAREOS_COMP}"
@@ -35,9 +34,8 @@ jobs:
           paths:
             - ./images
 
-  # Tag and deploy images
   deploy: &deploy
-    executor: my-executor
+    #executor: my-executor
     steps:
       - attach_workspace:
           at: /tmp/workspace
