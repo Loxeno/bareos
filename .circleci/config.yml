@@ -18,23 +18,23 @@ jobs:
               echo 'export TAG="${CIRCLE_BRANCH}-${BASE_IMG}-${BAREOS_BACKEND}"' > vars/env.vars
               echo 'BAREOS_PATH="${BAREOS_COMP}-${BAREOS_BACKEND}"' >> vars/env.vars
             fi
-      - persist_to_workspace:
-          root: .
-          paths:
-            - ./vars
+      #- persist_to_workspace:
+      #    root: .
+      #    paths:
+      #      - ./vars
 
   build: &build
     #executor: my-executor
     <<: *pre_build
     machine: true
     steps:
-      - attach_workspace:
-          at: /tmp/workspace
+      #- attach_workspace:
+      #    at: /tmp/workspace
       - checkout
       - run:
           name: Build image
           command: |
-            source /tmp/worksapce/vars/env.vars
+            source vars/env.vars
             #export TAG="${CIRCLE_BRANCH}-${BASE_IMG}"
             #export BAREOS_PATH="${BAREOS_COMP}"
             #echo 'export TAG="${CIRCLE_BRANCH}-${BASE_IMG}"' >> $BASH_ENV
