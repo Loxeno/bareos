@@ -20,7 +20,7 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Docker build and tag
+          name: Docker build Bareos director
           command: |
             docker build -t barcus/bareos-director:${CIRCLE_BRANCH}-mysql director-mysql
             docker build -t barcus/bareos-director:${CIRCLE_BRANCH}-pgsql director-pgsql
@@ -35,6 +35,57 @@ jobs:
             - ./image-director-mysql.tar
             - ./image-director-pgsql.tar
 
+  build-client:
+    executor: my-executor
+    steps:
+      - checkout
+      - run:
+          name: Docker build Bareos client
+          command: |
+            docker build -t barcus/bareos-client:${CIRCLE_BRANCH} client
+      - run:
+          name: Save images
+          command: |
+            docker save -o image-client.tar barcus/bareos-client:${CIRCLE_BRANCH}
+      - persist_to_workspace:
+          root: .
+          paths:
+            - ./image-client.tar
+
+  build-storage:
+    executor: my-executor
+    steps:
+      - checkout
+      - run:
+          name: Docker build Bareos storage
+          command: |
+            docker build -t barcus/bareos-storage:${CIRCLE_BRANCH} storage
+      - run:
+          name: Save images
+          command: |
+            docker save -o image-storage.tar barcus/bareos-storage:${CIRCLE_BRANCH}
+      - persist_to_workspace:
+          root: .
+          paths:
+            - ./image-storage.tar
+
+  build-webui:
+    executor: my-executor
+    steps:
+      - checkout
+      - run:
+          name: Docker build Bareos webui
+          command: |
+            docker build -t barcus/bareos-webui:${CIRCLE_BRANCH} webui
+      - run:
+          name: Save image
+          command: |
+            docker save -o image-webui.tar barcus/bareos-webui:${CIRCLE_BRANCH}
+      - persist_to_workspace:
+          root: .
+          paths:
+            - ./image-webui.tar
+
   deploy:
     executor: my-executor
     steps:
@@ -45,7 +96,11 @@ jobs:
           command: |
             docker load -i /tmp/workspace/image-director-mysql.tar
             docker load -i /tmp/workspace/image-director-pgsql.tar
+            docker load -i /tmp/workspace/image-client.tar
+            docker load -i /tmp/workspace/image-storage.tar
+            docker load -i /tmp/workspace/image-webui.tar
             docker tag barcus/bareos-director:${CIRCLE_BRANCH}-mysql barcus/bareos-director:${CIRCLE_BRANCH}
+            #docker tag barcus/bareos-client:${CIRCLE_BRANCH} barcus/bareos-director:${VERSION}
             #docker tag barcus/bareos-director:${CIRCLE_BRANCH}-mysql barcus/bareos-director:${VERSION}
       - run: 
           name: Docker login
@@ -58,6 +113,9 @@ jobs:
             docker push barcus/bareos-director:${CIRCLE_BRANCH}-pgsql
             docker push barcus/bareos-director:${CIRCLE_BRANCH}
             #docker push barcus/bareos-director:${VERSION}
+            docker push barcus/bareos-client:${CIRCLE_BRANCH}
+            docker push barcus/bareos-storage:${CIRCLE_BRANCH}
+            docker push barcus/bareos-webui:${CIRCLE_BRANCH}
 
 workflows:
   version: 2
@@ -67,6 +125,18 @@ workflows:
       - build-director:
           requires:
             - build
+      - build-client:
+          requires:
+            - build
+      - build-storage:
+          requires:
+            - build
+      - build-webui:
+          requires:
+            - build
       - deploy:
           requires:
             - build-director
+            - build-client
+            - build-storage
+            - build-webui
