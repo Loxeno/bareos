@@ -70,42 +70,42 @@ workflows:
   build-n-deploy:
     jobs:
       - build:
-          name: Build Bareos director-mysql Ubuntu
+          name: build director-ubuntu-mysql
           context: director-ubuntu-mysql
       - build:
-          name: Build Bareos director-pgsql Ubuntu
+          name: build director-ubuntu-pgsql
           context: director-ubuntu-pgsql
       - build:
-          name: Build Bareos client Ubuntu
+          name: build client-ubuntu
           context: client-ubuntu
       - build:
-          name: Build Bareos storage Ubuntu
+          name: build storage-ubuntu
           context: storage-ubuntu
       - build:
-          name: Build Bareos webui Ubuntu
+          name: build webui-ubuntu
           context: webui-ubuntu
       - deploy:
-          name: Deploy Bareos director-mysql Ubuntu
+          name: deploy director-buntu-mysql
           context: director-ubuntu-mysql
           requires:
-            - Build Bareos director-mysql Ubuntu
+            - build director-ubuntu-mysql
       - deploy:
-          name: Deploy Bareos director-pgsql Ubuntu
+          name: deploy director-ubuntu-pgsql
           context: director-ubuntu-pgsql
           requires:
-            - Build Bareos director-pgsql Ubuntu
+            - build director-ubuntu-pgsql
       - deploy:
-          name: Deploy Bareos client Ubuntu
+          name: deploy client-ubuntu
           context: client-ubuntu
           requires:
-            - Build Bareos client Ubuntu
+            - build client-ubuntu
       - deploy:
-          name: Deploy Bareos storage Ubuntu
+          name: deploy storage-buntu
           context: storage-ubuntu
           requires:
-            - Build Bareos storage Ubuntu
+            - build storage-ubuntu
       - deploy:
-          name: Deploy Bareos webui Ubuntu
+          name: deploy webui-ubuntu
           context: webui-ubuntu
           requires:
-            - Build Bareos webui Ubuntu
+            - build webui-ubuntu
