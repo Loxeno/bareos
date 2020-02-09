@@ -4,6 +4,7 @@ executors:
   my-executor:
     machine: true
 jobs:
+  # Build Bareos images
   build: &build
     executor: my-executor
     steps:
@@ -28,13 +29,13 @@ jobs:
           name: Save images
           command: |
             mkdir images
-            echo "1 ${BAREOS_PATH} - 2 ${BAREOS_COMP} - 3 ${TAG}"
             docker save -o images/image-${BAREOS_PATH}.tar barcus/bareos-${BAREOS_COMP}:${TAG}
       - persist_to_workspace:
           root: .
           paths:
             - ./images
 
+  # Tag and eploy Bareos images
   deploy: &deploy
     executor: my-executor
     steps:
@@ -65,66 +66,82 @@ jobs:
             docker push barcus/bareos-${BAREOS_COMP}:${CIRCLE_BRANCH}
             docker push barcus/bareos-${BAREOS_COMP}:${TAG}
 
-  build_client_ubuntu:
+  # Build Ubuntu images
+  build-director-ubuntu-mysql:
+     <<: *build
+     environment:
+       - BAREOS_COMP: director
+       - BAREOS_BACKEND: mysql
+       - BASE_IMG: ubuntu
+  build-director-ubuntu-pgsql:
+     <<: *build
+     environment:
+       - BAREOS_COMP: director
+       - BAREOS_BACKEND: pgsql
+       - BASE_IMG: ubuntu
+  build-client-ubuntu:
      <<: *build
      environment:
        - BAREOS_COMP: client
        - BASE_IMG: ubuntu
+  build-storage-ubuntu:
+     <<: *build
+     environment:
+       - BAREOS_COMP: storage
+       - BASE_IMG: ubuntu
+  build-webui-ubuntu:
+     <<: *build
+     environment:
+       - BAREOS_COMP: webui
+       - BASE_IMG: ubuntu
 
-  deploy_client_ubuntu:
+  # Deploy Ubuntu images
+  deploy-director-ubuntu-mysql:
+     <<: *deploy
+     environment:
+       - BAREOS_COMP: director
+       - BAREOS_BACKEND: mysql
+       - BASE_IMG: ubuntu
+
+  deploy-client-ubuntu:
      <<: *deploy
      environment:
        - BAREOS_COMP: client
        - BASE_IMG: ubuntu
 
+  deploy-storage-ubuntu:
+     <<: *deploy
+     environment:
+       - BAREOS_COMP: storage
+       - BASE_IMG: ubuntu
 
-
+  deploy-webui-ubuntu:
+     <<: *deploy
+     environment:
+       - BAREOS_COMP: webui
+       - BASE_IMG: ubuntu
 
 workflows:
   version: 2
   build-n-deploy:
     jobs:
-      - build_client_ubuntu
-      - deploy_client_ubuntu:
+      - build-director-ubuntu-mysql
+      - build-director-ubuntu-pgsql
+      - build-client-ubuntu
+      - build-storage-ubuntu  
+      - build-webui-ubuntu
+      - deploy-director-ubuntu-mysql:
           requires:
-            - build_client_ubuntu
-      #- build:
-      #    name: build director-ubuntu-mysql
-      #    context: director-ubuntu-mysql
-      #- build:
-      #    name: build director-ubuntu-pgsql
-      #    context: director-ubuntu-pgsql
-      #- build:
-      #    name: build client-ubuntu
-      #    context: client-ubuntu
-      #- build:
-      #    name: build storage-ubuntu
-      #    context: storage-ubuntu
-      #- build:
-      #    name: build webui-ubuntu
-      #    context: webui-ubuntu
-      #- deploy:
-      #    name: deploy director-buntu-mysql
-      #    context: director-ubuntu-mysql
-      #    requires:
-      #      - build director-ubuntu-mysql
-      #- deploy:
-      #    name: deploy director-ubuntu-pgsql
-      #    context: director-ubuntu-pgsql
-      #    requires:
-      #      - build director-ubuntu-pgsql
-      #- deploy:
-      #    name: deploy client-ubuntu
-      #    context: client-ubuntu
-      #    requires:
-      #      - build client-ubuntu
-      #- deploy:
-      #    name: deploy storage-buntu
-      #    context: storage-ubuntu
-      #    requires:
-      #      - build storage-ubuntu
-      #- deploy:
-      #    name: deploy webui-ubuntu
-      #    context: webui-ubuntu
-      #    requires:
-      #      - build webui-ubuntu
+            - build-director-ubuntu-mysql
+      - deploy-director-ubuntu-pgsql:
+          requires:
+            - build-director-ubuntu-pgsql
+      - deploy-client-ubuntu:
+          requires:
+            - build-client-ubuntu
+      - deploy-storage-ubuntu:
+          requires:
+            - build-storage-ubuntu
+      - deploy-webui-ubuntu:
+          requires:
+            - build-webui-ubuntu
