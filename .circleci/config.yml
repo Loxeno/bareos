@@ -1,7 +1,7 @@
 version: 2.1
 
 jobs:
-  pre_build: &pred_build
+  pre_build: &pre_build
     machine: true
     steps:
       - run:
