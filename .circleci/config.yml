@@ -4,49 +4,26 @@ executors:
   my-executor:
     machine: true
 jobs:
-  pre_build: &pre_build
-    executor: my-executor
-    #machine: true
-    steps:
-      - checkout
-      - run:
-          name: Load variables
-          command: |
-            mkdir vars
-            echo 'TAG="${CIRCLE_BRANCH}-${BASE_IMG}"' > vars/env.vars
-            echo 'BAREOS_PATH="${BAREOS_COMP}"' >> vars/env.vars
-            if [[ -n "$BAREOS_BACKEND" ]]
-            then
-              echo 'export TAG="${CIRCLE_BRANCH}-${BASE_IMG}-${BAREOS_BACKEND}"' > vars/env.vars
-              echo 'BAREOS_PATH="${BAREOS_COMP}-${BAREOS_BACKEND}"' >> vars/env.vars
-            fi
-      #- persist_to_workspace:
-      #    root: .
-      #    paths:
-      #      - ./vars
-
   build: &build
-    <<: *pre_build
-    #machine: true
+    #executor: my-executor
+    machine: true
     steps:
-      #- attach_workspace:
-      #    at: /tmp/workspace
       - run:
           name: Build image
           command: |
-            source vars/env.vars
-            #export TAG="${CIRCLE_BRANCH}-${BASE_IMG}"
-            #export BAREOS_PATH="${BAREOS_COMP}"
-            #echo 'export TAG="${CIRCLE_BRANCH}-${BASE_IMG}"' >> $BASH_ENV
-            #echo 'export BAREOS_PATH="${BAREOS_COMP}"' >> $BASH_ENV
+            #source vars/env.vars
+            export TAG="${CIRCLE_BRANCH}-${BASE_IMG}"
+            export BAREOS_PATH="${BAREOS_COMP}"
+            echo 'export TAG="${CIRCLE_BRANCH}-${BASE_IMG}"' >> $BASH_ENV
+            echo 'export BAREOS_PATH="${BAREOS_COMP}"' >> $BASH_ENV
 
-            #if [[ -n "$BAREOS_BACKEND" ]]
-            #then 
-            #  export TAG="${CIRCLE_BRANCH}-${BASE_IMG}-${BAREOS_BACKEND}"
-            #  export BAREOS_PATH="${BAREOS_COMP}-${BAREOS_BACKEND}"
-            #  echo 'export TAG="${CIRCLE_BRANCH}-${BASE_IMG}-${BAREOS_BACKEND}"' >> $BASH_ENV
-            #  echo 'export BAREOS_PATH="${BAREOS_COMP}-${BAREOS_BACKEND}"' >> $BASH_ENV
-            #fi
+            if [[ -n "$BAREOS_BACKEND" ]]
+            then 
+              export TAG="${CIRCLE_BRANCH}-${BASE_IMG}-${BAREOS_BACKEND}"
+              export BAREOS_PATH="${BAREOS_COMP}-${BAREOS_BACKEND}"
+              echo 'export TAG="${CIRCLE_BRANCH}-${BASE_IMG}-${BAREOS_BACKEND}"' >> $BASH_ENV
+              echo 'export BAREOS_PATH="${BAREOS_COMP}-${BAREOS_BACKEND}"' >> $BASH_ENV
+            fi
             docker build -t barcus/bareos-${BAREOS_COMP}:${TAG} ${BAREOS_PATH}/$BASE_IMG
       - run:
           name: Save images
@@ -152,22 +129,22 @@ workflows:
   build-n-deploy:
     jobs:
       - build-director-ubuntu-mysql
-      #- build-director-ubuntu-pgsql
-      #- build-client-ubuntu
-      #- build-storage-ubuntu  
-      #- build-webui-ubuntu
-      #- deploy-director-ubuntu-mysql:
-      #    requires:
-      #      - build-director-ubuntu-mysql
-      #- deploy-director-ubuntu-pgsql:
-      #    requires:
-      #      - build-director-ubuntu-pgsql
-      #- deploy-client-ubuntu:
-      #    requires:
-      #      - build-client-ubuntu
-      #- deploy-storage-ubuntu:
-      #    requires:
-      #      - build-storage-ubuntu
-      #- deploy-webui-ubuntu:
-      #    requires:
-      #      - build-webui-ubuntu
+      - build-director-ubuntu-pgsql
+      - build-client-ubuntu
+      - build-storage-ubuntu  
+      - build-webui-ubuntu
+      - deploy-director-ubuntu-mysql:
+          requires:
+            - build-director-ubuntu-mysql
+      - deploy-director-ubuntu-pgsql:
+          requires:
+            - build-director-ubuntu-pgsql
+      - deploy-client-ubuntu:
+          requires:
+            - build-client-ubuntu
+      - deploy-storage-ubuntu:
+          requires:
+            - build-storage-ubuntu
+      - deploy-webui-ubuntu:
+          requires:
+            - build-webui-ubuntu
