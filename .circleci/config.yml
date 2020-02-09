@@ -35,7 +35,7 @@ jobs:
           paths:
             - ./images
 
-  deploy:
+  deploy: &deploy
     executor: my-executor
     steps:
       - attach_workspace:
@@ -65,17 +65,29 @@ jobs:
             docker push barcus/bareos-${BAREOS_COMP}:${CIRCLE_BRANCH}
             docker push barcus/bareos-${BAREOS_COMP}:${TAG}
 
-  deploy_client_test:
+  build_client_ubuntu:
      <<: *build
      environment:
        - BAREOS_COMP: client
        - BASE_IMG: ubuntu
 
+  deploy_client_ubuntu:
+     <<: *deploy
+     environment:
+       - BAREOS_COMP: client
+       - BASE_IMG: ubuntu
+
+
+
+
 workflows:
   version: 2
   build-n-deploy:
     jobs:
-      - deploy_client_test
+      - build_client_ubuntu
+      - deploy_client_ubuntu:
+          requires:
+            - build_client_ubuntu
       #- build:
       #    name: build director-ubuntu-mysql
       #    context: director-ubuntu-mysql
