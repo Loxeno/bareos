@@ -83,4 +83,4 @@ workflows:
             - BAREOS_COMP: client
             - BASE_IMG: ubuntu
           requires:
-            - Build Baros client Ubuntu
+            - build
