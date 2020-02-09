@@ -4,18 +4,7 @@ executors:
   my-executor:
     machine: true
 jobs:
-  #build:
-  #  executor: my-executor
-  #  steps:
-  #    - run:
-  #        name: Set variables
-  #        command: |
-  #          VERSION=$(echo "${CIRCRLE_BRANCH}" | cut -d'-' -f1)
-  #          BASE=$(echo "${CIRCRLE_BRANCH}" | cut -d'-' -f2)
-  #          echo "export VERSION=${VERSION}" >> $BASH_ENV
-  #          echo "export BASE=${BASE}" >> $BASH_ENV
-    
-  build:
+  build: &build
     executor: my-executor
     steps:
       - checkout
@@ -46,7 +35,7 @@ jobs:
           paths:
             - ./images
 
-  deploy:
+  deploy: &deploy
     executor: my-executor
     steps:
       - attach_workspace:
@@ -56,34 +45,76 @@ jobs:
           command: |
             export TAG="${CIRCLE_BRANCH}-${BASE_IMG}"
             export BAREOS_PATH="${BAREOS_COMP}"
+            echo 'export TAG="${CIRCLE_BRANCH}-${BASE_IMG}"' >> $BASH_ENV
+
             if [[ -n "$BAREOS_BACKEND" ]]
             then
               export TAG="${CIRCLE_BRANCH}-${BASE_IMG}-${BAREOS_BACKEND}"
               export BAREOS_PATH="${BAREOS_COMP}-${BAREOS_BACKEND}"
+              echo 'export TAG="${CIRCLE_BRANCH}-${BASE_IMG}-${BAREOS_BACKEND}"' >> $BASH_ENV
             fi
 
             docker load -i /tmp/workspace/images/image-${BAREOS_PATH}.tar
             docker tag barcus/bareos-${BAREOS_COMP}:${TAG} barcus/bareos-${BAREOS_COMP}:${CIRCLE_BRANCH}
       - run: 
           name: Docker login
-          #command: echo "$DOCKER_PASS" | docker login --username $DOCKER_USER --password-stdin
           command: docker login -u $DOCKER_USER -p $DOCKER_PASS
-
       - run:
           name: Docker push
           command: |
             docker push barcus/bareos-${BAREOS_COMP}:${CIRCLE_BRANCH}
             docker push barcus/bareos-${BAREOS_COMP}:${TAG}
 
+  deploy_client:
+    executor: my-executor
+    <<: *build
+    <<: *deploy
+      - BAREOS_COMP: client
+      - BASE_IMG: ubuntu
+    
+
 workflows:
   version: 2
   build-n-deploy:
     jobs:
-      - build:
-          name: Build Bareos client Ubuntu
-          context: client-ubuntu
-      - deploy:
-          name: Deploy Bareos client Ubuntu
-          context: client-ubuntu
-          requires:
-            - Build Bareos client Ubuntu
+      - deploy_client
+      #- build:
+      #    name: Build Bareos director-mysql Ubuntu
+      #    context: director-ubuntu-mysql
+      #- build:
+      #    name: Build Bareos director-pgsql Ubuntu
+      #    context: director-ubuntu-pgsql
+      #- build:
+      #    name: Build Bareos client Ubuntu
+      #    context: client-ubuntu
+      #- build:
+      #    name: Build Bareos storage Ubuntu
+      #    context: storage-ubuntu
+      #- build:
+      #    name: Build Bareos webui Ubuntu
+      #    context: webui-ubuntu
+      #- deploy:
+      #    name: Deploy Bareos director-mysql Ubuntu
+      #    context: director-ubuntu-mysql
+      #    requires:
+      #      - Build Bareos director-mysql Ubuntu
+      #- deploy:
+      #    name: Deploy Bareos director-pgsql Ubuntu
+      #    context: director-ubuntu-pgsql
+      #    requires:
+      #      - Build Bareos director-pgsql Ubuntu
+      #- deploy:
+      #    name: Deploy Bareos client Ubuntu
+      #    context: client-ubuntu
+      #    requires:
+      #      - Build Bareos client Ubuntu
+      #- deploy:
+      #    name: Deploy Bareos storage Ubuntu
+      #    context: storage-ubuntu
+      #    requires:
+      #      - Build Bareos webui Ubuntu
+      #- deploy:
+      #    name: Deploy Bareos webui Ubuntu
+      #    context: webui-ubuntu
+      #    requires:
+      #      - Build Bareos webui Ubuntu
