@@ -1,0 +1,86 @@
+version: 2.1
+
+executors:
+  my-executor:
+    machine: true
+jobs:
+  #build:
+  #  executor: my-executor
+  #  steps:
+  #    - run:
+  #        name: Set variables
+  #        command: |
+  #          VERSION=$(echo "${CIRCRLE_BRANCH}" | cut -d'-' -f1)
+  #          BASE=$(echo "${CIRCRLE_BRANCH}" | cut -d'-' -f2)
+  #          echo "export VERSION=${VERSION}" >> $BASH_ENV
+  #          echo "export BASE=${BASE}" >> $BASH_ENV
+    
+  build: &build
+    executor: my-executor
+    steps:
+      - checkout
+      - run:
+          name: Docker build Bareos
+          command: |
+            export TAG="${CIRCLE_BRANCH}-${BASE_IMG}"
+            export BAREOS_PATH="${BAREOS_COMP}"
+            if [[ -n "$BAREOS_BACKEND" ]]
+            then 
+              export TAG="${CIRCLE_BRANCH}-${BASE_IMG}-${BAREOS_BACKEND}"
+              export BAREOS_PATH="${BAREOS_COMP}-${BAREOS_BACKEND}"
+            fi
+            docker build -t barcus/bareos-${BAREOS_COMP}:${TAG} ${BAREOS_PATH}/$BASE_IMG
+      - run:
+          name: Save images
+          command: |
+            docker save -o images/image-%{BAREOS_PATH}.tar barcus/bareos-${BAREOS_COMP}:${TAG}
+      - persist_to_workspace:
+          root: .
+          paths:
+            - ./images
+
+  deploy: &deploy
+    executor: my-executor
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+      - run:
+          name: Load image and add tags
+          command: |
+            export TAG="${CIRCLE_BRANCH}-${BASE_IMG}"
+            export BAREOS_PATH="${BAREOS_COMP}"
+            if [[ -n "$BAREOS_BACKEND" ]]
+            then
+              export TAG="${CIRCLE_BRANCH}-${BASE_IMG}-${BAREOS_BACKEND}"
+              export BAREOS_PATH="${BAREOS_COMP}-${BAREOS_BACKEND}"
+            fi
+
+            docker load -i /tmp/workspace/images/image-${BAREOS_PATH}.tar
+            docker tag barcus/bareos-${BAREOS_COMP}:${TAG} barcus/bareos-${BAREOS_COMP}:${CIRCLE_BRANCH}
+      - run: 
+          name: Docker login
+          #command: echo "$DOCKER_PASS" | docker login --username $DOCKER_USER --password-stdin
+          command: docker login -u $DOCKER_USER -p $DOCKER_PASS
+
+      - run:
+          name: Docker push
+          command: |
+            docker push barcus/bareos-${BAREOS_COMP}:${CIRCLE_BRANCH}
+            docker push barcus/bareos-${BAREOS_COMP}:${TAG}
+
+workflows:
+  version: 2
+  build-and-deploy:
+    jobs:
+      - build_ubuntu_client:
+          <<: *build
+          environment:
+            - BAREOS_COMP: client
+            - BASE_IMG: ubuntu
+      - deploy_ubuntu_client:
+          <<: *deploy
+          environment:
+            - BAREOS_COMP: client
+            - BASE_IMG: ubuntu
+          requires:
+            - build_ubuntu_client
