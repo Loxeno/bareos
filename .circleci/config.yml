@@ -22,8 +22,8 @@ jobs:
       - run:
           name: Docker build Bareos
           command: |
-            export TAG="${CIRCLE_BRANCH}-${BASE_IMG}"
-            export BAREOS_PATH="${BAREOS_COMP}"
+            echo 'export TAG="${CIRCLE_BRANCH}-${BASE_IMG}"' >> $BASH_ENV
+            echo 'export BAREOS_PATH="${BAREOS_COMP}"' >> $BASH_ENV
             if [[ -n "$BAREOS_BACKEND" ]]
             then 
               echo 'export TAG="${CIRCLE_BRANCH}-${BASE_IMG}-${BAREOS_BACKEND}"' >> $BASH_ENV
