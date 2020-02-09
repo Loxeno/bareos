@@ -27,12 +27,12 @@ jobs:
       - run:
           name: Save images
           command: |
-            docker save -o image-${CIRCLE_BRANCH}-mysql.tar barcus/bareos-director:${CIRCLE_BRANCH}-mysql
+            docker save -o image-director-mysql.tar barcus/bareos-director:${CIRCLE_BRANCH}-mysql
             #docker save -o image-${CIRCLE_BRANCH}-pgsql.tar barcus/bareos-director:${CIRCLE_BRANCH}-pgsql
       - persist_to_workspace:
           root: .
           paths:
-            - image-${CIRCLE_BRANCH}-mysql.tar
+            - ./image-director-mysql.tar
 
   deploy:
     executor: my-executor
