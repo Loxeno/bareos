@@ -67,7 +67,6 @@ jobs:
 
   deploy_client:
     executor: my-executor
-    <<: *build
     <<: *deploy
       environment:
       - BAREOS_COMP: client
