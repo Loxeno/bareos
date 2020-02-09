@@ -15,7 +15,7 @@ jobs:
   #          echo "export VERSION=${VERSION}" >> $BASH_ENV
   #          echo "export BASE=${BASE}" >> $BASH_ENV
     
-  build: &build
+  build:
     executor: my-executor
     steps:
       - checkout
@@ -39,7 +39,7 @@ jobs:
           paths:
             - ./images
 
-  deploy: &deploy
+  deploy:
     executor: my-executor
     steps:
       - attach_workspace:
@@ -70,17 +70,17 @@ jobs:
 
 workflows:
   version: 2
-  build-and-deploy:
+  build-n-deploy:
     jobs:
-      - build_ubuntu_client:
-          <<: *build
+      - build:
+          name: Build Bareos client Ubuntu
           environment:
             - BAREOS_COMP: client
             - BASE_IMG: ubuntu
-      - deploy_ubuntu_client:
-          <<: *deploy
+      - deploy:
+          name: Deploy Baros client Ubuntu
           environment:
             - BAREOS_COMP: client
             - BASE_IMG: ubuntu
           requires:
-            - build_ubuntu_client
+            - Build Baros client Ubuntu
