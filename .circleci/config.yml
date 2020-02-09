@@ -26,7 +26,7 @@ jobs:
   build: &build
     #executor: my-executor
     <<: *pre_build
-    machine: true
+    #machine: true
     steps:
       #- attach_workspace:
       #    at: /tmp/workspace
