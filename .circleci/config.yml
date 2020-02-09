@@ -34,6 +34,7 @@ jobs:
           name: Save images
           command: |
             mkdir images
+            echo "1 ${BAREOS_PATH} - 2 ${BAREOS_COMP} - 3 ${TAG}"
             docker save -o images/image-${BAREOS_PATH}.tar barcus/bareos-${BAREOS_COMP}:${TAG}
       - persist_to_workspace:
           root: .
