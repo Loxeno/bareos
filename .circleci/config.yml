@@ -97,6 +97,7 @@ jobs:
      <<: *build
      environment:
        - BAREOS_COMP: director
+       - BAREOS_BACKEND: mysql
        - BASE_IMG: alpine
   build-client-alpine:
      <<: *build
