@@ -31,7 +31,7 @@ jobs:
       - run:
           name: Build image
           command: |
-            source /tmp/worksapce/env.vars
+            source /tmp/worksapce/vars/env.vars
             #export TAG="${CIRCLE_BRANCH}-${BASE_IMG}"
             #export BAREOS_PATH="${BAREOS_COMP}"
             #echo 'export TAG="${CIRCLE_BRANCH}-${BASE_IMG}"' >> $BASH_ENV
