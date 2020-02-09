@@ -35,7 +35,7 @@ jobs:
           paths:
             - ./images
 
-  deploy: &deploy
+  deploy:
     executor: my-executor
     steps:
       - attach_workspace:
@@ -67,51 +67,45 @@ jobs:
 
 workflows:
   version: 2
-  build_client:
-    <<: *deploy
-      environment:
-      - BAREOS_COMP: client
-      - BASE_IMG: ubuntu
-  #build-n-deploy:
-  #  jobs:
-  #    - deploy_client
-      #- build:
-      #    name: Build Bareos director-mysql Ubuntu
-      #    context: director-ubuntu-mysql
-      #- build:
-      #    name: Build Bareos director-pgsql Ubuntu
-      #    context: director-ubuntu-pgsql
-      #- build:
-      #    name: Build Bareos client Ubuntu
-      #    context: client-ubuntu
-      #- build:
-      #    name: Build Bareos storage Ubuntu
-      #    context: storage-ubuntu
-      #- build:
-      #    name: Build Bareos webui Ubuntu
-      #    context: webui-ubuntu
-      #- deploy:
-      #    name: Deploy Bareos director-mysql Ubuntu
-      #    context: director-ubuntu-mysql
-      #    requires:
-      #      - Build Bareos director-mysql Ubuntu
-      #- deploy:
-      #    name: Deploy Bareos director-pgsql Ubuntu
-      #    context: director-ubuntu-pgsql
-      #    requires:
-      #      - Build Bareos director-pgsql Ubuntu
-      #- deploy:
-      #    name: Deploy Bareos client Ubuntu
-      #    context: client-ubuntu
-      #    requires:
-      #      - Build Bareos client Ubuntu
-      #- deploy:
-      #    name: Deploy Bareos storage Ubuntu
-      #    context: storage-ubuntu
-      #    requires:
-      #      - Build Bareos webui Ubuntu
-      #- deploy:
-      #    name: Deploy Bareos webui Ubuntu
-      #    context: webui-ubuntu
-      #    requires:
-      #      - Build Bareos webui Ubuntu
+  build-n-deploy:
+    jobs:
+      - build:
+          name: Build Bareos director-mysql Ubuntu
+          context: director-ubuntu-mysql
+      - build:
+          name: Build Bareos director-pgsql Ubuntu
+          context: director-ubuntu-pgsql
+      - build:
+          name: Build Bareos client Ubuntu
+          context: client-ubuntu
+      - build:
+          name: Build Bareos storage Ubuntu
+          context: storage-ubuntu
+      - build:
+          name: Build Bareos webui Ubuntu
+          context: webui-ubuntu
+      - deploy:
+          name: Deploy Bareos director-mysql Ubuntu
+          context: director-ubuntu-mysql
+          requires:
+            - Build Bareos director-mysql Ubuntu
+      - deploy:
+          name: Deploy Bareos director-pgsql Ubuntu
+          context: director-ubuntu-pgsql
+          requires:
+            - Build Bareos director-pgsql Ubuntu
+      - deploy:
+          name: Deploy Bareos client Ubuntu
+          context: client-ubuntu
+          requires:
+            - Build Bareos client Ubuntu
+      - deploy:
+          name: Deploy Bareos storage Ubuntu
+          context: storage-ubuntu
+          requires:
+            - Build Bareos storage Ubuntu
+      - deploy:
+          name: Deploy Bareos webui Ubuntu
+          context: webui-ubuntu
+          requires:
+            - Build Bareos webui Ubuntu
