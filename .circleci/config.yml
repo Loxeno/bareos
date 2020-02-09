@@ -1,6 +1,6 @@
 version: 2.1
 
-executor:
+executors:
   my-executor:
     machine: true
 jobs:
@@ -25,7 +25,7 @@ jobs:
       #      - ./vars
 
   build: &build
-    executor: my-executor
+    #executor: my-executor
     <<: *pre_build
     #machine: true
     steps:
