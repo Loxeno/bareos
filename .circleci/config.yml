@@ -78,9 +78,9 @@ workflows:
             - BAREOS_COMP: client
             - BASE_IMG: ubuntu
       - deploy:
-          name: Deploy Baros client Ubuntu
+          name: Deploy Bareos client Ubuntu
           environment:
             - BAREOS_COMP: client
             - BASE_IMG: ubuntu
           requires:
-            - build
+            - Build Bareos client Ubuntu
