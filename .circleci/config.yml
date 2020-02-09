@@ -1,12 +1,11 @@
 version: 2.1
 
-executor:
-  my-executor:
-    machine: true
+#executor:
+#  my-executor:
+#    machine: true
 jobs:
   pre_build: &pre_build
-    executor: my-executor
-    #machine: true
+    machine: true
     steps:
       - run:
           name: Load variables
@@ -25,9 +24,9 @@ jobs:
             - ./vars
 
   build: &build
-    executor: my-executor
+    #executor: my-executor
     <<: *pre_build
-    #machine: true
+    machine: true
     steps:
       - attach_workspace:
           at: /tmp/workspace
