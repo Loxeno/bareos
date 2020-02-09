@@ -1,11 +1,12 @@
 version: 2.1
 
-#executor:
-#  my-executor:
-#    machine: true
+executor:
+  my-executor:
+    machine: true
 jobs:
   pre_build: &pre_build
-    machine: true
+    executor: my-executor
+    #machine: true
     steps:
       - run:
           name: Load variables
