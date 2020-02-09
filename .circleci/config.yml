@@ -4,7 +4,7 @@ executors:
   my-executor:
     machine: true
 jobs:
-  # Build Bareos images
+  # Build images
   build: &build
     executor: my-executor
     steps:
@@ -35,7 +35,7 @@ jobs:
           paths:
             - ./images
 
-  # Tag and eploy Bareos images
+  # Tag and deploy images
   deploy: &deploy
     executor: my-executor
     steps:
@@ -102,19 +102,22 @@ jobs:
        - BAREOS_COMP: director
        - BAREOS_BACKEND: mysql
        - BASE_IMG: ubuntu
-
+  deploy-director-ubuntu-pgsql:
+     <<: *deploy
+     environment:
+       - BAREOS_COMP: director
+       - BAREOS_BACKEND: pgsql
+       - BASE_IMG: ubuntu
   deploy-client-ubuntu:
      <<: *deploy
      environment:
        - BAREOS_COMP: client
        - BASE_IMG: ubuntu
-
   deploy-storage-ubuntu:
      <<: *deploy
      environment:
        - BAREOS_COMP: storage
        - BASE_IMG: ubuntu
-
   deploy-webui-ubuntu:
      <<: *deploy
      environment:
