@@ -74,13 +74,9 @@ workflows:
     jobs:
       - build:
           name: Build Bareos client Ubuntu
-          environment:
-            - BAREOS_COMP: client
-            - BASE_IMG: ubuntu
+          context: client-ubuntu
       - deploy:
           name: Deploy Bareos client Ubuntu
-          environment:
-            - BAREOS_COMP: client
-            - BASE_IMG: ubuntu
+          context: client-ubuntu
           requires:
             - Build Bareos client Ubuntu
