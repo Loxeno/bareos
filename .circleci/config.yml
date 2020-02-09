@@ -69,6 +69,7 @@ jobs:
     executor: my-executor
     <<: *build
     <<: *deploy
+      environment:
       - BAREOS_COMP: client
       - BASE_IMG: ubuntu
     
