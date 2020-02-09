@@ -26,7 +26,6 @@ jobs:
       #      - ./vars
 
   build: &build
-    executor: my-executor
     <<: *pre_build
     #machine: true
     steps:
