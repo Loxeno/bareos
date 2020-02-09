@@ -29,7 +29,7 @@ jobs:
           command: |
             docker build -t barcus/bareos-director:${CIRCLE_BRANCH}-mysql director-mysql
             docker tag barcus/bareos-director:${CIRCLE_BRANCH}-mysql barcus/bareos-director:${CIRCLE_BRANCH}
-            docker tag barcus/bareos-director:${CIRCLE_BRANCH}-mysql barcus/bareos-director:${VERSION}
+            #docker tag barcus/bareos-director:${CIRCLE_BRANCH}-mysql barcus/bareos-director:${VERSION}
 
   deploy:
     executor: my-executor
@@ -39,7 +39,7 @@ jobs:
           command: |
             docker push barcus/bareos-director:${CIRCLE_BRANCH}-mysql
             docker push barcus/bareos-director:${CIRCLE_BRANCH}
-            docker push barcus/bareos-director:${VERSION}
+            #docker push barcus/bareos-director:${VERSION}
 
 workflows:
   version: 2
