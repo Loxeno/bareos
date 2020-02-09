@@ -6,7 +6,7 @@ jobs:
       - checkout
       - run:
           name: Variables
-          command: export VERSION='16.2'
+          command: echo "export VERSION='16.2'" >> $BASH_ENV
 
       - run: 
           name: Docker login
