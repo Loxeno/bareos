@@ -8,6 +8,7 @@ jobs:
     executor: my-executor
     #machine: true
     steps:
+      - checkout
       - run:
           name: Load variables
           command: |
@@ -25,13 +26,12 @@ jobs:
       #      - ./vars
 
   build: &build
-    #executor: my-executor
+    executor: my-executor
     <<: *pre_build
     #machine: true
     steps:
       #- attach_workspace:
       #    at: /tmp/workspace
-      - checkout
       - run:
           name: Build image
           command: |
